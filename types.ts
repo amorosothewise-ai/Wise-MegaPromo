@@ -38,4 +38,5 @@ export interface AppState {
   commissions: MonthlyCommission[];
 }
 
-export type ViewMode = 'dashboard' | 'sales' | 'commissions';
+export type ViewMode = 'dashboard' | 'sales' | 'commissions' | 'summary';
+export type Language = 'pt' | 'en';
