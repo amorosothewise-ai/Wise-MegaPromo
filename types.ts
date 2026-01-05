@@ -1,3 +1,4 @@
+
 export enum Month {
   Jan = 'Jan',
   Feb = 'Feb',
@@ -10,33 +11,52 @@ export enum Month {
   Sep = 'Sep',
   Oct = 'Oct',
   Nov = 'Nov',
-  Dec = 'Dec',
+  Dec = 'Dec'
 }
 
 export enum Operator {
   MPesa = 'M-Pesa',
-  EMola = 'e-Mola',
+  EMola = 'e-Mola'
+}
+
+export interface Expense {
+  id: string;
+  date: string;
+  description: string;
+  category: string;
+  value: number;
 }
 
 export interface DiamondSale {
   id: string;
-  date: string; // ISO Date string YYYY-MM-DD
+  date: string;
   quantity: number;
-  // Calculated fields are derived at runtime
+  repaymentRate?: number;
+  salePrice?: number;
+  grossCommission?: number;
 }
 
 export interface MonthlyCommission {
   id: string;
   month: Month;
-  year: number; // Field added to track years
+  year: number;
   operator: Operator;
   commissionValue: number;
+}
+
+export interface AppSettings {
+  defaultRepaymentRate: number;
+  defaultSalePrice: number;
+  defaultGrossCommission: number;
 }
 
 export interface AppState {
   sales: DiamondSale[];
   commissions: MonthlyCommission[];
+  expenses: Expense[];
+  settings: AppSettings;
 }
 
-export type ViewMode = 'dashboard' | 'sales' | 'commissions' | 'summary';
+export type ViewMode = 'dashboard' | 'sales' | 'commissions' | 'expenses' | 'summary';
+
 export type Language = 'pt' | 'en';
