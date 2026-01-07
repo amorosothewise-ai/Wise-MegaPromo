@@ -2,7 +2,7 @@
 import { DiamondSale, Month, Operator, MonthlyCommission, Expense } from "./types";
 
 export const FACTORS = {
-  REINVESTMENT_FEE: 30, // Valor fixo a ser reinvestido por pacote
+  REINVESTMENT_FEE: 30, // Valor fixo padrão a ser reinvestido por pacote
 };
 
 export const EXPENSE_CATEGORIES = [
@@ -55,17 +55,27 @@ export const formatDateDisplay = (dateStr: string) => {
   return `${parts[2]}/${parts[1]}/${parts[0]}`;
 };
 
-export const calculateReinvestment = (quantity: number) => {
-  return (quantity || 0) * FACTORS.REINVESTMENT_FEE;
+/**
+ * Calcula o valor de reinvestimento baseado na quantidade e taxa.
+ * Se a taxa não for fornecida, usa o padrão global.
+ */
+export const calculateReinvestment = (quantity: number, rate?: number) => {
+  const effectiveRate = rate !== undefined ? rate : FACTORS.REINVESTMENT_FEE;
+  return (quantity || 0) * effectiveRate;
 };
 
-// Fix: Added the missing calculateSaleMetrics function which was causing an import error in geminiService.ts.
-// It calculates the estimated net profit for a sale based on quantity, commission, and repayment rate.
-export const calculateSaleMetrics = (sale: { quantity: number }, params: { grossCommission: number, repaymentRate: number }) => {
+/**
+ * Calcula métricas de lucro para uma venda específica.
+ * Prioriza taxas gravadas no registro da venda para manter consistência histórica.
+ */
+export const calculateSaleMetrics = (sale: DiamondSale, defaultParams: { grossCommission: number, repaymentRate: number }) => {
   const qty = sale.quantity || 0;
-  const lucroPorUnidade = (params.grossCommission || 0) - (params.repaymentRate || 0);
+  const comm = sale.grossCommission !== undefined ? sale.grossCommission : defaultParams.grossCommission;
+  const rate = sale.repaymentRate !== undefined ? sale.repaymentRate : defaultParams.repaymentRate;
+  
+  const profitPerUnit = (comm || 0) - (rate || 0);
   return {
-    lucroLiquido: qty * lucroPorUnidade
+    lucroLiquido: qty * profitPerUnit
   };
 };
 
@@ -75,8 +85,8 @@ const formatDate = (d: number) => {
 };
 
 export const INITIAL_SALES: DiamondSale[] = [
-  { id: '1', date: formatDate(1), quantity: 50 },
-  { id: '2', date: formatDate(2), quantity: 30 },
+  { id: '1', date: formatDate(1), quantity: 50, repaymentRate: 30, grossCommission: 75, salePrice: 470 },
+  { id: '2', date: formatDate(2), quantity: 30, repaymentRate: 30, grossCommission: 75, salePrice: 470 },
 ];
 
 export const INITIAL_COMMISSIONS: MonthlyCommission[] = [ 

@@ -34,23 +34,23 @@ export const StatsCard: React.FC<StatsCardProps> = ({
   };
 
   return (
-    <div className={`group bg-white p-5 sm:p-7 rounded-[2rem] sm:rounded-[2.5rem] shadow-sm border border-slate-200 ${bgStyles[color] || ''} hover:shadow-xl hover:shadow-slate-300/30 hover:-translate-y-1 transition-all duration-500 cursor-default flex flex-col justify-between h-full`}>
-      <div className="flex items-start justify-between mb-8 sm:mb-10">
-        <div>
-          <p className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-500 group-hover:text-slate-900 transition-colors">{title}</p>
+    <div className={`group bg-white p-4 sm:p-7 rounded-[1.5rem] sm:rounded-[2.5rem] shadow-sm border border-slate-200 ${bgStyles[color] || ''} hover:shadow-xl hover:shadow-slate-300/30 hover:-translate-y-1 transition-all duration-500 cursor-default flex flex-col justify-between h-full min-h-[140px] sm:min-h-[180px]`}>
+      <div className="flex items-start justify-between mb-4 sm:mb-10">
+        <div className="max-w-[70%]">
+          <p className="text-[7px] sm:text-[9px] font-black uppercase tracking-[0.15em] sm:tracking-[0.2em] text-slate-500 group-hover:text-slate-900 transition-colors leading-tight">{title}</p>
         </div>
-        <div className={`p-2.5 sm:p-3.5 rounded-xl sm:rounded-2xl shadow-lg transition-all duration-500 group-hover:scale-110 border ${iconStyles[color] || iconStyles.blue}`}>
-          <Icon size={18} strokeWidth={3} className="sm:w-6 sm:h-6" />
+        <div className={`p-2 sm:p-3.5 rounded-xl sm:rounded-2xl shadow-lg transition-all duration-500 group-hover:scale-110 border ${iconStyles[color] || iconStyles.blue}`}>
+          <Icon size={16} strokeWidth={3} className="sm:w-6 sm:h-6" />
         </div>
       </div>
       
-      <div className="space-y-2 sm:space-y-3">
-        <h2 className="text-xl sm:text-2xl lg:text-3xl font-black text-slate-900 tracking-tighter group-hover:scale-[1.01] origin-left transition-transform truncate">
+      <div className="space-y-1 sm:space-y-3">
+        <h2 className="text-sm sm:text-2xl lg:text-3xl font-black text-slate-900 tracking-tighter group-hover:scale-[1.01] origin-left transition-transform truncate">
           {value}
         </h2>
         {trend && (
           <div className="flex items-center gap-1.5">
-             <span className="text-[8px] sm:text-[9px] text-emerald-800 font-black bg-emerald-50 border border-emerald-100 px-2 py-1 rounded-full uppercase tracking-widest">
+             <span className="text-[7px] sm:text-[9px] text-emerald-800 font-black bg-emerald-50 border border-emerald-100 px-2 py-0.5 rounded-full uppercase tracking-widest">
                {trend}
              </span>
           </div>

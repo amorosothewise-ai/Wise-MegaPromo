@@ -1,49 +1,50 @@
 
 import { GoogleGenAI } from "@google/genai";
-import { AppState } from "../types.ts";
+import { AppState, DiamondSale } from "../types.ts";
 import { calculateSaleMetrics } from "../constants.ts";
 
 export const generateBusinessInsights = async (state: AppState): Promise<string> => {
-  // A variável process.env.API_KEY é injetada automaticamente pelo Netlify no ambiente de execução.
-  const apiKey = (window as any).process?.env?.API_KEY || process.env.API_KEY;
-  
-  if (!apiKey) {
-    return "Erro: A chave API (API_KEY) não foi detetada. Certifica-te de que configuraste a variável de ambiente no Netlify.";
-  }
-  
-  const ai = new GoogleGenAI({ apiKey });
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
   const calcParams = {
-    salePrice: state.settings.defaultSalePrice,
     grossCommission: state.settings.defaultGrossCommission,
     repaymentRate: state.settings.defaultRepaymentRate
   };
 
-  const salesSummary = state.sales.slice(-30).map(s => 
-    `Data:${s.date},Qtd:${s.quantity},LucroLíq:${calculateSaleMetrics(s, calcParams).lucroLiquido}`
+  // Preparamos um resumo conciso para o contexto da IA
+  const salesSummary = state.sales.slice(-50).map((s: DiamondSale) => {
+    const metrics = calculateSaleMetrics(s, calcParams);
+    return `Data:${s.date}, Qtd:${s.quantity}, LucroEst:${metrics.lucroLiquido}`;
+  }).join('\n');
+
+  const commissionsSummary = state.commissions.slice(-12).map(c => 
+    `Periodo:${c.month}/${c.year}, Op:${c.operator}, Valor:${c.commissionValue}`
   ).join('\n');
 
-  const commissionsSummary = state.commissions.map(c => 
-    `Período:${c.month} ${c.year},Operadora:${c.operator},Valor:${c.commissionValue}`
+  const expensesSummary = state.expenses.slice(-20).map(e => 
+    `Cat:${e.category}, Valor:${e.value}, Desc:${e.description}`
   ).join('\n');
 
-  const expensesSummary = state.expenses.slice(-10).map(e => 
-    `Categoria:${e.category},Valor:${e.value}`
-  ).join('\n');
-
-  const prompt = `Age como um analista financeiro sénior moçambicano. 
+  const prompt = `Analise estes dados financeiros de uma operação de revenda em Moçambique:
   
-  DADOS:
-  - Vendas: ${salesSummary}
-  - Comissões: ${commissionsSummary}
-  - Despesas: ${expensesSummary}
+  VENDAS RECENTES (Últimas 50):
+  ${salesSummary}
   
-  OBJETIVO:
-  Análise concisa (máx 150 palavras) em PT-MZ:
-  1. Destaque do período mais produtivo.
-  2. Tendência de volume (Crescer/Estável/Declinar).
-  3. Eficiência M-Pesa vs e-Mola.
-  4. Uma recomendação estratégica de lucro.`;
+  COMISSÕES RECEBIDAS (Últimos 12 meses):
+  ${commissionsSummary}
+  
+  DESPESAS FIXAS (Últimas 20):
+  ${expensesSummary}
+  
+  CONFIGURAÇÕES ATUAIS:
+  Comissão Bruta Padrão: ${state.settings.defaultGrossCommission} MT
+  Taxa Reinvestimento Padrão: ${state.settings.defaultRepaymentRate} MT
+  
+  Forneça uma análise estratégica curta (máx 150 palavras) em Português de Moçambique:
+  1. Identifique o canal de comissão mais lucrativo ou consistente.
+  2. Alerte sobre tendências de queda no volume de vendas ou aumento de despesas.
+  3. Sugira uma redução de custo específica baseada na lista de despesas.
+  4. Projeção realista de lucro líquido para o próximo ciclo mensal.`;
 
   try {
     const response = await ai.models.generateContent({ 
@@ -51,9 +52,12 @@ export const generateBusinessInsights = async (state: AppState): Promise<string>
       contents: prompt 
     });
 
-    return response.text || "Sem resposta da IA.";
-  } catch (error) {
+    return response.text || "A IA não conseguiu gerar uma resposta no momento.";
+  } catch (error: any) {
     console.error("Gemini Error:", error);
-    return "Erro na análise. Verifica se a tua chave API no Netlify é válida para o modelo gemini-3-pro-preview.";
+    if (error.message?.includes("API_KEY")) {
+      return "Erro: Chave API não configurada ou inválida nas variáveis de ambiente.";
+    }
+    return "Ocorreu um erro ao processar a análise com a Wise AI. Por favor, tente novamente mais tarde.";
   }
 };

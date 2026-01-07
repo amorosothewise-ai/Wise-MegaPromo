@@ -52,6 +52,9 @@ export interface AppSettings {
   partnerBPercentage: number;
   partnerAName: string;
   partnerBName: string;
+  defaultQuantity: number;
+  defaultOperator: Operator;
+  defaultExpenseCategory: string;
 }
 
 export type FilterMode = 'monthly' | 'range';
