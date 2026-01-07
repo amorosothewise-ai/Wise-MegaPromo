@@ -50,7 +50,11 @@ export interface AppSettings {
   defaultGrossCommission: number;
   partnerAPercentage: number;
   partnerBPercentage: number;
+  partnerAName: string;
+  partnerBName: string;
 }
+
+export type FilterMode = 'monthly' | 'range';
 
 export interface AppState {
   sales: DiamondSale[];

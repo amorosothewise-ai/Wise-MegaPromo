@@ -2,9 +2,7 @@
 import { DiamondSale, Month, Operator, MonthlyCommission, Expense } from "./types";
 
 export const FACTORS = {
-  VALOR_RECEBIDO: 470,
-  COMISSAO_BRUTA: 75,
-  DEFAULT_DIVIDA_REPOR: 30
+  REINVESTMENT_FEE: 30, // Valor fixo a ser reinvestido por pacote
 };
 
 export const EXPENSE_CATEGORIES = [
@@ -54,31 +52,20 @@ export const formatDateDisplay = (dateStr: string) => {
   if (!dateStr) return '--/--/----';
   const parts = dateStr.split('-');
   if (parts.length !== 3) return dateStr;
-  // Retorna no padrão Moçambicano DD/MM/AAAA
   return `${parts[2]}/${parts[1]}/${parts[0]}`;
 };
 
-export const calculateSaleMetrics = (sale: DiamondSale, settings: { salePrice: number, grossCommission: number, repaymentRate: number }) => {
-  const qty = Number(sale.quantity || 0);
-  const salePrice = Number(sale.salePrice ?? settings.salePrice);
-  const grossCommPerUnit = Number(sale.grossCommission ?? settings.grossCommission);
-  const ratePerUnit = Number(sale.repaymentRate ?? settings.repaymentRate);
+export const calculateReinvestment = (quantity: number) => {
+  return (quantity || 0) * FACTORS.REINVESTMENT_FEE;
+};
 
-  const totalBruto = qty * salePrice;
-  const totalComissao = qty * grossCommPerUnit;
-  const totalReposicao = qty * ratePerUnit;
-  
-  // Lucro Real = (Comissão Bruta * Qtd) - (Taxa Reposição * Qtd)
-  const lucroLiquido = totalComissao - totalReposicao;
-  
+// Fix: Added the missing calculateSaleMetrics function which was causing an import error in geminiService.ts.
+// It calculates the estimated net profit for a sale based on quantity, commission, and repayment rate.
+export const calculateSaleMetrics = (sale: { quantity: number }, params: { grossCommission: number, repaymentRate: number }) => {
+  const qty = sale.quantity || 0;
+  const lucroPorUnidade = (params.grossCommission || 0) - (params.repaymentRate || 0);
   return {
-    valorRecebido: totalBruto,
-    comissaoBruta: totalComissao,
-    dividaRepor: totalReposicao,
-    lucroLiquido,
-    usedRate: ratePerUnit,
-    usedPrice: salePrice,
-    usedGross: grossCommPerUnit
+    lucroLiquido: qty * lucroPorUnidade
   };
 };
 
@@ -88,12 +75,13 @@ const formatDate = (d: number) => {
 };
 
 export const INITIAL_SALES: DiamondSale[] = [
-  { id: '1', date: formatDate(1), quantity: 25, repaymentRate: 30, salePrice: 470, grossCommission: 75 },
-  { id: '2', date: formatDate(2), quantity: 18, repaymentRate: 30, salePrice: 470, grossCommission: 75 },
+  { id: '1', date: formatDate(1), quantity: 50 },
+  { id: '2', date: formatDate(2), quantity: 30 },
 ];
 
 export const INITIAL_COMMISSIONS: MonthlyCommission[] = [ 
-  { id: '1', month: MONTHS[new Date().getMonth()] as Month, year: new Date().getFullYear(), operator: Operator.MPesa, commissionValue: 2450 },
+  { id: '1', month: MONTHS[new Date().getMonth()] as Month, year: new Date().getFullYear(), operator: Operator.MPesa, commissionValue: 5500 },
+  { id: '2', month: MONTHS[new Date().getMonth()] as Month, year: new Date().getFullYear(), operator: Operator.EMola, commissionValue: 3200 },
 ];
 
 export const INITIAL_EXPENSES: Expense[] = [

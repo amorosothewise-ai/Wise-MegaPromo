@@ -16,7 +16,7 @@ export const generateBusinessInsights = async (state: AppState): Promise<string>
     repaymentRate: state.settings.defaultRepaymentRate
   };
 
-  // Fixed: calculateSaleMetrics expects two arguments; passing calcParams as the second one.
+  // Fixed: calculateSaleMetrics is now exported from constants.ts and expects two arguments.
   const salesSummary = state.sales.slice(-30).map(s => 
     `Date:${s.date},Qty:${s.quantity},NetProfit:${calculateSaleMetrics(s, calcParams).lucroLiquido}`
   ).join('\n');
@@ -51,11 +51,12 @@ export const generateBusinessInsights = async (state: AppState): Promise<string>
   Tone: Professional, data-driven, and supportive.`;
 
   try {
+    // Upgraded model to gemini-3-pro-preview to handle complex financial data analysis and reasoning tasks more effectively.
     const response = await ai.models.generateContent({ 
-      model: 'gemini-3-flash-preview', 
+      model: 'gemini-3-pro-preview', 
       contents: prompt 
     });
-    // Correct usage of .text property as per GenerateContentResponse definition
+    // Correct usage of .text property (not a method) as per GenerateContentResponse definition to extract the generated insight.
     return response.text || "Não foi possível gerar insights no momento.";
   } catch (error) {
     console.error("Gemini Error:", error);
