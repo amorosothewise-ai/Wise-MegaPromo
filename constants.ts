@@ -34,6 +34,14 @@ export const isFutureDate = (dateStr: string) => {
   return inputDate > today;
 };
 
+export const isFuturePeriod = (m: Month, y: number) => {
+  const now = new Date();
+  const targetMonthIdx = MONTHS.indexOf(m);
+  if (y > now.getFullYear()) return true;
+  if (y === now.getFullYear() && targetMonthIdx > now.getMonth()) return true;
+  return false;
+};
+
 export const escapeCSV = (val: any) => {
   const str = String(val ?? '');
   if (str.includes(',') || str.includes('"') || str.includes('\n')) {
@@ -46,6 +54,7 @@ export const formatDateDisplay = (dateStr: string) => {
   if (!dateStr) return '--/--/----';
   const parts = dateStr.split('-');
   if (parts.length !== 3) return dateStr;
+  // Retorna no padrão Moçambicano DD/MM/AAAA
   return `${parts[2]}/${parts[1]}/${parts[0]}`;
 };
 
@@ -59,7 +68,7 @@ export const calculateSaleMetrics = (sale: DiamondSale, settings: { salePrice: n
   const totalComissao = qty * grossCommPerUnit;
   const totalReposicao = qty * ratePerUnit;
   
-  // Função Primária: Lucro Real = (Comissão Bruta * Qtd) - (Taxa Reposição * Qtd)
+  // Lucro Real = (Comissão Bruta * Qtd) - (Taxa Reposição * Qtd)
   const lucroLiquido = totalComissao - totalReposicao;
   
   return {
