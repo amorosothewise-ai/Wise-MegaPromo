@@ -4,10 +4,12 @@ import { AppState } from "../types";
 import { calculateSaleMetrics } from "../constants";
 
 export const generateBusinessInsights = async (state: AppState): Promise<string> => {
-  if (!process.env.API_KEY) return "API Key is missing.";
+  // Use the pre-configured API_KEY from the environment
+  const apiKey = process.env.API_KEY;
+  if (!apiKey) return "API Key is missing or not configured correctly in the environment.";
   
-  // Create a new GoogleGenAI instance right before making an API call to ensure it always uses the most up-to-date API key.
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  // Create a new GoogleGenAI instance right before making an API call
+  const ai = new GoogleGenAI({ apiKey });
 
   // Prepare parameters for metric calculation based on current settings
   const calcParams = {
@@ -16,48 +18,49 @@ export const generateBusinessInsights = async (state: AppState): Promise<string>
     repaymentRate: state.settings.defaultRepaymentRate
   };
 
-  // Fixed: calculateSaleMetrics is now exported from constants.ts and expects two arguments.
+  // Extract relevant financial data for analysis
   const salesSummary = state.sales.slice(-30).map(s => 
-    `Date:${s.date},Qty:${s.quantity},NetProfit:${calculateSaleMetrics(s, calcParams).lucroLiquido}`
+    `Data:${s.date},Qtd:${s.quantity},LucroLíq:${calculateSaleMetrics(s, calcParams).lucroLiquido}`
   ).join('\n');
 
   const commissionsSummary = state.commissions.map(c => 
-    `Period:${c.month} ${c.year},Op:${c.operator},Value:${c.commissionValue}`
+    `Período:${c.month} ${c.year},Operadora:${c.operator},Valor:${c.commissionValue}`
   ).join('\n');
 
   const expensesSummary = state.expenses.slice(-10).map(e => 
-    `Cat:${e.category},Val:${e.value}`
+    `Categoria:${e.category},Valor:${e.value}`
   ).join('\n');
 
-  const prompt = `Act as a specialized business financial analyst for a retail business. 
+  const prompt = `Age como um analista financeiro sénior especializado no mercado moçambicano. 
   
-  CONTEXT:
-  - Sales (Recent):
+  CONTEXTO DE DADOS:
+  - Vendas Recentes:
   ${salesSummary}
   
-  - Commissions (Recent):
+  - Comissões Recebidas:
   ${commissionsSummary}
   
-  - Expenses (Recent):
+  - Despesas Fixas:
   ${expensesSummary}
   
-  GOAL:
-  Provide a concise, expert analysis (max 180 words) in Portuguese. Focus on:
-  1. Highlight the single most productive day and why it stands out.
-  2. Identify the sales volume trend (Growing, Stable, or Declining).
-  3. Compare M-Pesa vs e-Mola efficiency based on recent data.
-  4. One high-impact recommendation to optimize Net Profit or reduce operating costs.
+  OBJETIVO:
+  Fornece uma análise executiva concisa (máx. 200 palavras) em Português de Moçambique.
+  1. Identifica o dia mais produtivo e explica a razão do seu destaque.
+  2. Determina se a tendência de volume de vendas está a Crescer, Estável ou a Declinar.
+  3. Compara a eficiência do M-Pesa vs e-Mola com base nos ganhos recentes.
+  4. Dá UMA recomendação estratégica de alto impacto para maximizar o Lucro Real ou cortar custos desnecessários.
   
-  Tone: Professional, data-driven, and supportive.`;
+  Tom: Profissional, direto ao ponto e baseado em dados.`;
 
   try {
-    // Upgraded model to gemini-3-pro-preview to handle complex financial data analysis and reasoning tasks more effectively.
+    // Using gemini-3-pro-preview for complex financial reasoning tasks.
     const response = await ai.models.generateContent({ 
       model: 'gemini-3-pro-preview', 
       contents: prompt 
     });
-    // Correct usage of .text property (not a method) as per GenerateContentResponse definition to extract the generated insight.
-    return response.text || "Não foi possível gerar insights no momento.";
+
+    // Directly access .text property from GenerateContentResponse
+    return response.text || "Não foi possível gerar insights no momento. Tente novamente.";
   } catch (error) {
     console.error("Gemini Error:", error);
     return "Falha ao analisar dados. Por favor, tente novamente mais tarde.";

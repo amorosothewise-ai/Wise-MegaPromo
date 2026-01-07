@@ -17,7 +17,10 @@ import {
   X as CloseIcon, 
   Info as InfoIcon, 
   Share2 as ShareIcon,
-  BarChart3
+  BarChart3,
+  Sparkles,
+  BrainCircuit,
+  Loader2
 } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart as RePieChart, Pie, Cell, Legend } from 'recharts';
 import { StatsCard } from './components/StatsCard';
@@ -28,6 +31,7 @@ import { SettingsModal } from './components/SettingsModal';
 import { ConfirmationModal } from './components/ConfirmationModal';
 import { DiamondSale, MonthlyCommission, ViewMode, Language, AppSettings, Expense, Month, FilterMode } from './types';
 import { INITIAL_SALES, INITIAL_COMMISSIONS, INITIAL_EXPENSES, calculateReinvestment, MONTHS, formatMZN, escapeCSV, FACTORS } from './constants';
+import { generateBusinessInsights } from './services/geminiService';
 
 const generateId = () => typeof crypto?.randomUUID === 'function' ? crypto.randomUUID() : Math.random().toString(36).substr(2, 9);
 const safeParse = <T,>(k: string, fb: T): T => { try { const s = localStorage.getItem(k); return s ? JSON.parse(s) : fb; } catch { return fb; } };
@@ -41,7 +45,8 @@ const T = {
     confirmDelTitle: 'Apagar Registro', confirmDelMsg: 'Deseja eliminar permanentemente este item?', delete: 'Sim, Eliminar',
     exportCsv: 'Exportar CSV', set: 'Configurações', accProfit: 'Lucro Consolidado',
     perfChart: 'Fluxo Mensal', distChart: 'Partilha Sócios',
-    noData: 'Sem dados.', notify: 'Alertas', period: 'Filtrar por', monthly: 'Mês/Ano', range: 'Intervalo'
+    noData: 'Sem dados.', notify: 'Alertas', period: 'Filtrar por', monthly: 'Mês/Ano', range: 'Intervalo',
+    aiTitle: 'Wise AI Insights', aiBtn: 'Analisar com IA', aiLoading: 'IA está a analisar os teus dados...', aiEmpty: 'Clica no botão para obter uma análise financeira detalhada dos teus lucros.'
   },
   en: { 
     dash: 'Smart Management', sale: 'Activations', comm: 'MZ Commissions', exp: 'Fixed Costs', sum: 'Cash Summary',
@@ -50,7 +55,8 @@ const T = {
     confirmDelTitle: 'Delete Record', confirmDelMsg: 'Permanently remove this item?', delete: 'Yes, Delete',
     exportCsv: 'Export CSV', set: 'Settings', accProfit: 'Consolidated Profit',
     perfChart: 'Monthly Flow', distChart: 'Profit Sharing',
-    noData: 'No data.', notify: 'Alerts', period: 'Filter by', monthly: 'Month/Year', range: 'Range'
+    noData: 'No data.', notify: 'Alerts', period: 'Filter by', monthly: 'Month/Year', range: 'Range',
+    aiTitle: 'Wise AI Insights', aiBtn: 'Analyze with AI', aiLoading: 'AI is analyzing your data...', aiEmpty: 'Click the button to get a detailed financial analysis of your profits.'
   }
 };
 
@@ -78,6 +84,9 @@ const App: React.FC = () => {
   const [sales, setSales] = useState<DiamondSale[]>(() => safeParse('diamond_sales', INITIAL_SALES));
   const [commissions, setCommissions] = useState<MonthlyCommission[]>(() => safeParse('diamond_commissions', INITIAL_COMMISSIONS));
   const [expenses, setExpenses] = useState<Expense[]>(() => safeParse('diamond_expenses', INITIAL_EXPENSES));
+
+  const [insights, setInsights] = useState<string | null>(null);
+  const [loadingInsights, setLoadingInsights] = useState(false);
 
   const [deleteModal, setDeleteModal] = useState<{isOpen: boolean, onConfirm: () => void, title?: string, message?: string}>({ 
     isOpen: false, 
@@ -157,6 +166,20 @@ const App: React.FC = () => {
       .map((r: any) => ({ ...r, bal: r.credits - r.debt - r.debits, name: MONTHS[r.m] }))
       .sort((a, b) => b.y - a.y || b.m - a.m);
   }, [sales, commissions, expenses]);
+
+  const handleGetInsights = async () => {
+    setLoadingInsights(true);
+    setInsights(null);
+    if ('vibrate' in navigator) navigator.vibrate([10, 50, 10]);
+    try {
+      const res = await generateBusinessInsights({ sales, commissions, expenses, settings });
+      setInsights(res);
+    } catch (err) {
+      setInsights("Ocorreu um erro ao gerar os insights. Verifica a ligação.");
+    } finally {
+      setLoadingInsights(false);
+    }
+  };
 
   const handleExportCSV = useCallback(() => {
     const headers = ['Tipo', 'Ref', 'Data/Periodo', 'Valor'];
@@ -258,6 +281,7 @@ const App: React.FC = () => {
 
         <div className="p-8 sm:p-12 max-w-7xl mx-auto space-y-12 animate-in fade-in duration-700 pb-20">
           {view === 'dashboard' && (<>
+            {/* Quick Stats Section */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8">
                 <StatsCard title={t.tQty} value={periodStats.totalQty.toString()} icon={PackIcon} color="purple" />
                 <StatsCard title={t.net} value={formatMZN(periodStats.totalComm)} icon={WalletIcon} color="blue" />
@@ -265,6 +289,8 @@ const App: React.FC = () => {
                 <StatsCard title={t.tExp} value={formatMZN(-periodStats.totalExp)} icon={ExpenseIcon} color="red" />
                 <StatsCard title={t.tEarn} value={formatMZN(periodStats.netProfit)} icon={MoneyIcon} color="green" />
             </div>
+
+            {/* Charts Section */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
                <div className="lg:col-span-2 bg-white p-10 rounded-[3rem] shadow-sm border-2 border-slate-200">
                   <h3 className="text-[11px] font-black uppercase tracking-[0.3em] text-slate-400 mb-10 flex items-center gap-3"><BarChart3 size={20} className="text-blue-600"/> {t.perfChart}</h3>
@@ -291,6 +317,52 @@ const App: React.FC = () => {
                       <div className="text-center opacity-30 py-20"><ReinvestIcon size={64} strokeWidth={1} className="mx-auto mb-6 text-slate-300" /><p className="text-[11px] font-black uppercase tracking-widest">Sem dividendos</p></div>
                     )}
                   </div>
+               </div>
+            </div>
+
+            {/* AI Insight Section (Moved to Bottom) */}
+            <div className="relative group bg-slate-950 p-10 rounded-[3rem] shadow-2xl border-2 border-white/5 overflow-hidden">
+               <div className="absolute top-0 right-0 w-64 h-64 bg-red-600/20 blur-[100px] pointer-events-none group-hover:bg-red-600/30 transition-all duration-700"></div>
+               <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-600/10 blur-[100px] pointer-events-none"></div>
+               
+               <div className="relative flex flex-col md:flex-row items-start md:items-center justify-between gap-10">
+                  <div className="flex items-center gap-6">
+                     <div className="bg-white/10 p-5 rounded-3xl backdrop-blur-md border border-white/10 shadow-xl group-hover:scale-110 transition-transform duration-500">
+                        <Sparkles size={32} className="text-red-500 animate-pulse" />
+                     </div>
+                     <div>
+                        <h3 className="text-xl font-black text-white tracking-tight">{t.aiTitle}</h3>
+                        <p className="text-[10px] font-black text-white/40 uppercase tracking-widest mt-1">Alimentado por Gemini 3 Pro</p>
+                     </div>
+                  </div>
+                  
+                  <button 
+                    onClick={handleGetInsights}
+                    disabled={loadingInsights}
+                    className="w-full md:w-auto px-10 py-5 bg-white text-slate-950 rounded-[1.5rem] font-black text-xs uppercase tracking-widest flex items-center justify-center gap-3 shadow-xl hover:bg-red-600 hover:text-white transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed group-hover:shadow-red-500/20"
+                  >
+                    {loadingInsights ? <Loader2 size={18} className="animate-spin" /> : <BrainCircuit size={18} />}
+                    {loadingInsights ? t.aiLoading : t.aiBtn}
+                  </button>
+               </div>
+               
+               <div className="relative mt-10 p-8 bg-white/5 border border-white/5 rounded-[2rem] min-h-[100px] flex items-center justify-center">
+                  {loadingInsights ? (
+                    <div className="flex flex-col items-center gap-4 text-white/40 py-10">
+                       <Loader2 size={40} className="animate-spin text-red-500" />
+                       <p className="text-[10px] font-black uppercase tracking-[0.3em]">{t.aiLoading}</p>
+                    </div>
+                  ) : insights ? (
+                    <div className="w-full animate-in fade-in slide-in-from-bottom-4 duration-500">
+                       <p className="text-white/80 text-sm leading-relaxed font-medium">
+                          {insights}
+                       </p>
+                    </div>
+                  ) : (
+                    <div className="text-center py-6">
+                       <p className="text-white/30 text-[10px] font-black uppercase tracking-widest">{t.aiEmpty}</p>
+                    </div>
+                  )}
                </div>
             </div>
           </>)}
