@@ -43,7 +43,7 @@ const T = {
     exportCsv: 'Exportar CSV', set: 'Configurações', accProfit: 'Lucro Consolidado',
     perfChart: 'Fluxo Mensal', distChart: 'Partilha Sócios',
     noData: 'Sem dados.', notify: 'Alertas', period: 'Filtrar por', monthly: 'Mês/Ano', range: 'Intervalo',
-    aiTitle: 'Wise AI Insights', aiBtn: 'Analisar com IA', aiLoading: 'IA está a analisar os teus dados...', aiEmpty: 'Clica no botão para obter uma análise financeira detalhada dos teus lucros.'
+    aiTitle: 'Wise AI Insights', aiBtn: 'Analisar com IA', aiLoading: 'IA analisando...', aiEmpty: 'Clica no botão para obter uma análise detalhada.'
   },
   en: { 
     dash: 'Smart Management', sale: 'Activations', comm: 'MZ Commissions', exp: 'Fixed Costs', sum: 'Cash Summary',
@@ -53,7 +53,7 @@ const T = {
     exportCsv: 'Export CSV', set: 'Settings', accProfit: 'Consolidated Profit',
     perfChart: 'Monthly Flow', distChart: 'Profit Sharing',
     noData: 'No data.', notify: 'Alerts', period: 'Filter by', monthly: 'Month/Year', range: 'Range',
-    aiTitle: 'Wise AI Insights', aiBtn: 'Analyze with AI', aiLoading: 'AI is analyzing your data...', aiEmpty: 'Click the button to get a detailed financial analysis of your profits.'
+    aiTitle: 'Wise AI Insights', aiBtn: 'Analyze with AI', aiLoading: 'AI analyzing...', aiEmpty: 'Click the button to get a detailed analysis.'
   }
 };
 
@@ -171,7 +171,7 @@ const App: React.FC = () => {
       const res = await generateBusinessInsights({ sales, commissions, expenses, settings });
       setInsights(res);
     } catch (err) {
-      setInsights("Ocorreu um erro ao gerar os insights. Verifica a ligação e a chave API.");
+      setInsights("Erro ao gerar insights. Verifique a chave API.");
     } finally {
       setLoadingInsights(false);
     }
@@ -192,16 +192,16 @@ const App: React.FC = () => {
 
   const NavBtn = ({ v, ic: I, l, m = false }: { v: ViewMode, ic: any, l: string, m?: boolean }) => (
     <button onClick={() => changeView(v)} className={m 
-        ? `flex flex-col items-center flex-1 py-4 transition-all active:scale-95 touch-manipulation ${view === v ? 'text-red-600 font-black' : 'text-slate-500 font-bold'}` 
+        ? `flex flex-col items-center flex-1 py-3 transition-all active:scale-95 touch-manipulation ${view === v ? 'text-red-600 font-black' : 'text-slate-500 font-bold'}` 
         : `w-full flex items-center gap-4 px-6 py-4 rounded-[1.5rem] transition-all touch-manipulation ${view === v ? 'bg-red-600 text-white shadow-xl shadow-red-200' : 'text-slate-300 hover:bg-white/10 hover:text-white'}`
       }>
-      <I size={m ? 26 : 22} strokeWidth={m ? 3 : 2.5} />
-      <span className={m ? "text-[9px] mt-1.5 uppercase font-black tracking-widest" : "font-black text-[11px] uppercase tracking-widest"}>{l}</span>
+      <I size={m ? 24 : 22} strokeWidth={m ? 3 : 2.5} />
+      <span className={m ? "text-[8px] mt-1 uppercase font-black tracking-widest" : "font-black text-[11px] uppercase tracking-widest"}>{l}</span>
     </button>
   );
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col md:flex-row font-sans overscroll-none touch-pan-y selection:bg-red-100">
+    <div className="min-h-screen bg-[#f8fafc] flex flex-col md:flex-row font-sans overscroll-none touch-pan-y selection:bg-red-100">
       <SettingsModal isOpen={showSettings} onClose={() => setShowSettings(false)} settings={settings} onSave={setSettings} t={t} />
       <ConfirmationModal 
         isOpen={deleteModal.isOpen} 
@@ -212,12 +212,12 @@ const App: React.FC = () => {
         confirmText={t.delete} 
       />
       
-      <aside className="hidden md:flex w-80 bg-slate-950 text-white flex-col h-screen sticky top-0 z-50 shadow-2xl">
-        <div className="p-10 flex items-center gap-4 border-b border-white/5">
-          <div className="bg-red-600 p-3 rounded-2xl shadow-xl border border-red-500"><GemIcon size={32} className="text-white" /></div>
-          <div><span className="text-2xl font-black text-white tracking-tighter">WISE</span><span className="text-xs font-black text-red-500 uppercase block tracking-[0.2em] -mt-1">CONTROL</span></div>
+      <aside className="hidden md:flex w-72 bg-slate-950 text-white flex-col h-screen sticky top-0 z-50 shadow-2xl shrink-0">
+        <div className="p-8 flex items-center gap-4 border-b border-white/5">
+          <div className="bg-red-600 p-2.5 rounded-2xl shadow-xl border border-red-500"><GemIcon size={28} className="text-white" /></div>
+          <div><span className="text-xl font-black text-white tracking-tighter">WISE</span><span className="text-[10px] font-black text-red-500 uppercase block tracking-[0.2em] -mt-1">CONTROL</span></div>
         </div>
-        <nav className="px-6 py-12 space-y-4 flex-1 overflow-y-auto custom-scrollbar">
+        <nav className="px-5 py-8 space-y-3 flex-1 overflow-y-auto custom-scrollbar">
           <NavBtn v="dashboard" ic={DashIcon} l={t.dash} />
           <NavBtn v="sales" ic={SalesIcon} l={t.sale} />
           <NavBtn v="commissions" ic={WalletIcon} l={t.comm} />
@@ -226,7 +226,7 @@ const App: React.FC = () => {
         </nav>
       </aside>
 
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-3xl border-t-2 border-slate-200 z-50 flex items-center justify-around py-3 pb-safe shadow-[0_-20px_50px_rgba(0,0,0,0.1)]">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-3xl border-t-2 border-slate-200 z-50 flex items-center justify-around py-2 pb-safe shadow-[0_-15px_40px_rgba(0,0,0,0.08)]">
           <NavBtn v="dashboard" ic={DashIcon} l={t.dash} m />
           <NavBtn v="sales" ic={SalesIcon} l={t.sale} m />
           <NavBtn v="commissions" ic={WalletIcon} l={t.comm} m />
@@ -235,49 +235,49 @@ const App: React.FC = () => {
       </nav>
 
       <main className="flex-1 h-screen overflow-y-auto relative pb-32 md:pb-12 bg-slate-50 overscroll-contain">
-        <header className="bg-white/80 backdrop-blur-2xl border-b border-slate-200 px-6 sm:px-12 py-6 flex flex-col gap-6 sticky top-0 z-40">
+        <header className="bg-white/80 backdrop-blur-2xl border-b border-slate-200 px-6 sm:px-10 py-5 flex flex-col gap-5 sticky top-0 z-40">
            <div className="flex items-center justify-between w-full">
-             <div className="flex items-center gap-4">
-               <div className="md:hidden bg-red-600 p-2 rounded-xl text-white shadow-lg"><GemIcon size={18}/></div>
-               <h1 className="text-sm font-black tracking-[0.2em] text-slate-900 uppercase">{t[view as keyof typeof t] || t.dash}</h1>
-             </div>
              <div className="flex items-center gap-3">
-               <button onClick={handleExportCSV} className="p-3.5 bg-white text-slate-900 rounded-2xl border-2 border-slate-200 hover:bg-slate-50 transition-all active:scale-90 shadow-sm" title={t.exportCsv}><ExportIcon size={22} strokeWidth={2.5}/></button>
-               <button onClick={() => setShowSettings(true)} className="p-3.5 bg-slate-900 text-white rounded-2xl hover:bg-slate-800 transition-all active:scale-90 shadow-xl" title={t.set}><SettingsIcon size={22} strokeWidth={2.5}/></button>
-               <button onClick={() => setLang(l => l === 'pt' ? 'en' : 'pt')} className="hidden sm:flex px-4 py-2 bg-slate-100 text-slate-900 border-2 border-slate-200 rounded-xl text-[10px] font-black uppercase items-center gap-2 tracking-widest shadow-sm">{lang}</button>
+               <div className="md:hidden bg-red-600 p-2 rounded-xl text-white shadow-lg"><GemIcon size={16}/></div>
+               <h1 className="text-[11px] font-black tracking-[0.2em] text-slate-900 uppercase truncate">{t[view as keyof typeof t] || t.dash}</h1>
+             </div>
+             <div className="flex items-center gap-2">
+               <button onClick={handleExportCSV} className="p-2.5 bg-white text-slate-900 rounded-xl border-2 border-slate-200 hover:bg-slate-50 transition-all active:scale-90" title={t.exportCsv}><ExportIcon size={18} strokeWidth={2.5}/></button>
+               <button onClick={() => setShowSettings(true)} className="p-2.5 bg-slate-900 text-white rounded-xl hover:bg-slate-800 transition-all active:scale-90 shadow-lg" title={t.set}><SettingsIcon size={18} strokeWidth={2.5}/></button>
+               <button onClick={() => setLang(l => l === 'pt' ? 'en' : 'pt')} className="hidden sm:flex px-3 py-2 bg-slate-100 text-slate-900 border-2 border-slate-200 rounded-lg text-[9px] font-black uppercase items-center gap-2 tracking-widest">{lang}</button>
              </div>
            </div>
 
-           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 bg-slate-100 p-2 rounded-[2rem] border-2 border-slate-200 shadow-sm">
-             <div className="flex items-center bg-white border-2 border-slate-50 rounded-[1.5rem] p-1 shadow-inner">
-               <button onClick={() => setFilterMode('monthly')} className={`px-6 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${filterMode === 'monthly' ? 'bg-red-600 text-white shadow-xl' : 'text-slate-400 hover:text-slate-600'}`}>{t.monthly}</button>
-               <button onClick={() => setFilterMode('range')} className={`px-6 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${filterMode === 'range' ? 'bg-red-600 text-white shadow-xl' : 'text-slate-400 hover:text-slate-600'}`}>{t.range}</button>
+           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 bg-slate-100 p-1.5 rounded-2xl border border-slate-200">
+             <div className="flex items-center bg-white border border-slate-200 rounded-xl p-0.5 shadow-sm">
+               <button onClick={() => setFilterMode('monthly')} className={`px-4 py-2 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all ${filterMode === 'monthly' ? 'bg-red-600 text-white shadow-md' : 'text-slate-400'}`}>{t.monthly}</button>
+               <button onClick={() => setFilterMode('range')} className={`px-4 py-2 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all ${filterMode === 'range' ? 'bg-red-600 text-white shadow-md' : 'text-slate-400'}`}>{t.range}</button>
              </div>
-             <div className="flex-1 flex items-center gap-4 px-4 overflow-hidden">
+             <div className="flex-1 flex items-center gap-3 px-3">
                {filterMode === 'monthly' ? (
-                 <>
-                   <select value={selectedMonth} onChange={(e) => setSelectedMonth(e.target.value as Month)} className="flex-1 bg-transparent text-[11px] font-black uppercase outline-none text-slate-900 cursor-pointer min-h-[44px]">
+                 <div className="flex items-center gap-3 w-full">
+                   <select value={selectedMonth} onChange={(e) => setSelectedMonth(e.target.value as Month)} className="bg-transparent text-[10px] font-black uppercase outline-none text-slate-900 cursor-pointer h-10 flex-1">
                      {MONTHS.map(m => <option key={m} value={m}>{m}</option>)}
                    </select>
-                   <div className="w-px h-6 bg-slate-300"></div>
-                   <select value={selectedYear} onChange={(e) => setSelectedYear(+e.target.value)} className="flex-1 bg-transparent text-[11px] font-black uppercase outline-none text-slate-900 cursor-pointer min-h-[44px]">
+                   <div className="w-px h-4 bg-slate-300"></div>
+                   <select value={selectedYear} onChange={(e) => setSelectedYear(+e.target.value)} className="bg-transparent text-[10px] font-black uppercase outline-none text-slate-900 cursor-pointer h-10 flex-1">
                      {[2023, 2024, 2025, 2026].map(y => <option key={y} value={y}>{y}</option>)}
                    </select>
-                 </>
+                 </div>
                ) : (
-                 <div className="flex-1 flex items-center gap-3 overflow-hidden">
-                   <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="flex-1 bg-transparent text-[10px] font-black uppercase outline-none text-slate-900 min-h-[44px]" />
-                   <RightIcon size={14} className="text-slate-400 shrink-0" />
-                   <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="flex-1 bg-transparent text-[10px] font-black uppercase outline-none text-slate-900 min-h-[44px]" />
+                 <div className="flex-1 flex items-center gap-3 justify-between">
+                   <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="bg-transparent text-[10px] font-black uppercase outline-none text-slate-900 h-10 w-full" />
+                   <RightIcon size={12} className="text-slate-400 shrink-0" />
+                   <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="bg-transparent text-[10px] font-black uppercase outline-none text-slate-900 h-10 w-full" />
                  </div>
                )}
              </div>
            </div>
         </header>
 
-        <div className="p-8 sm:p-12 max-w-7xl mx-auto space-y-12 animate-in fade-in duration-700 pb-20">
+        <div className="p-6 sm:p-10 max-w-7xl mx-auto space-y-10 animate-in fade-in duration-700">
           {view === 'dashboard' && (<>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8">
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 sm:gap-6">
                 <StatsCard title={t.tQty} value={periodStats.totalQty.toString()} icon={PackIcon} color="purple" />
                 <StatsCard title={t.net} value={formatMZN(periodStats.totalComm)} icon={WalletIcon} color="blue" />
                 <StatsCard title={t.tDebt} value={formatMZN(-periodStats.totalDebt)} icon={ReinvestIcon} color="orange" />
@@ -285,88 +285,120 @@ const App: React.FC = () => {
                 <StatsCard title={t.tEarn} value={formatMZN(periodStats.netProfit)} icon={MoneyIcon} color="green" />
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
-               <div className="lg:col-span-2 bg-white p-10 rounded-[3rem] shadow-sm border-2 border-slate-200">
-                  <h3 className="text-[11px] font-black uppercase tracking-[0.3em] text-slate-400 mb-10 flex items-center gap-3"><BarChart3 size={20} className="text-blue-600"/> {t.perfChart}</h3>
-                  <div className="h-[350px]">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+               <div className="lg:col-span-2 bg-white p-8 sm:p-10 rounded-[2.5rem] shadow-sm border border-slate-200">
+                  <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-8 flex items-center gap-3"><BarChart3 size={18} className="text-blue-600"/> {t.perfChart}</h3>
+                  <div className="h-[300px] sm:h-[350px]">
                     <ResponsiveContainer width="100%" height="100%">
                       <AreaChart data={[...chartData].reverse()}>
                         <defs><linearGradient id="colorSaldo" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#dc2626" stopOpacity={0.2}/><stop offset="95%" stopColor="#dc2626" stopOpacity={0}/></linearGradient></defs>
-                        <XAxis dataKey="name" stroke="#cbd5e1" fontSize={10} fontWeight="900" axisLine={false} tickLine={false} />
-                        <YAxis stroke="#cbd5e1" fontSize={10} fontWeight="900" axisLine={false} tickLine={false} tickFormatter={(val) => `${val/1000}k`} />
-                        <Tooltip contentStyle={{ borderRadius: '1.5rem', border: 'none', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.1)', fontWeight: '900', fontSize: '12px' }} />
-                        <Area type="monotone" dataKey="bal" stroke="#dc2626" strokeWidth={6} fill="url(#colorSaldo)" />
+                        <XAxis dataKey="name" stroke="#cbd5e1" fontSize={9} fontWeight="900" axisLine={false} tickLine={false} />
+                        <YAxis stroke="#cbd5e1" fontSize={9} fontWeight="900" axisLine={false} tickLine={false} tickFormatter={(val) => `${Math.floor(val/1000)}k`} />
+                        <Tooltip contentStyle={{ borderRadius: '1rem', border: 'none', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)', fontWeight: '900', fontSize: '11px' }} />
+                        <Area type="monotone" dataKey="bal" stroke="#dc2626" strokeWidth={5} fill="url(#colorSaldo)" />
                       </AreaChart>
                     </ResponsiveContainer>
                   </div>
                </div>
-               <div className="bg-white p-10 rounded-[3rem] shadow-sm border-2 border-slate-200">
-                  <h3 className="text-[11px] font-black uppercase tracking-[0.3em] text-slate-400 mb-10 flex items-center gap-3"><SummaryIcon size={20} className="text-purple-600"/> {t.distChart}</h3>
-                  <div className="h-[350px] flex items-center justify-center">
+               <div className="bg-white p-8 sm:p-10 rounded-[2.5rem] shadow-sm border border-slate-200">
+                  <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-8 flex items-center gap-3"><SummaryIcon size={18} className="text-purple-600"/> {t.distChart}</h3>
+                  <div className="h-[300px] sm:h-[350px] flex items-center justify-center">
                     {periodStats.netProfit > 0 ? (
                       <ResponsiveContainer width="100%" height="100%">
-                        <RePieChart><Pie data={[{ name: settings.partnerAName || 'Sócio A', value: periodStats.netProfit * (settings.partnerAPercentage/100) }, { name: settings.partnerBName || 'Sócio B', value: periodStats.netProfit * (settings.partnerBPercentage/100) }]} cx="50%" cy="50%" innerRadius={70} outerRadius={110} paddingAngle={12} dataKey="value" stroke="none"><Cell fill="#dc2626" /><Cell fill="#1e3a8a" /></Pie><Tooltip /><Legend iconType="circle" wrapperStyle={{ fontWeight: '900', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em' }} /></RePieChart>
+                        <RePieChart>
+                          <Pie 
+                            data={[
+                              { name: settings.partnerAName || 'Sócio A', value: periodStats.netProfit * (settings.partnerAPercentage/100) }, 
+                              { name: settings.partnerBName || 'Sócio B', value: periodStats.netProfit * (settings.partnerBPercentage/100) }
+                            ]} 
+                            cx="50%" cy="50%" innerRadius={60} outerRadius={90} paddingAngle={10} dataKey="value" stroke="none"
+                          >
+                            <Cell fill="#dc2626" />
+                            <Cell fill="#1e3a8a" />
+                          </Pie>
+                          <Tooltip />
+                          <Legend verticalAlign="bottom" iconType="circle" wrapperStyle={{ fontWeight: '900', fontSize: '10px', textTransform: 'uppercase', paddingTop: '20px' }} />
+                        </RePieChart>
                       </ResponsiveContainer>
                     ) : (
-                      <div className="text-center opacity-30 py-20"><ReinvestIcon size={64} strokeWidth={1} className="mx-auto mb-6 text-slate-300" /><p className="text-[11px] font-black uppercase tracking-widest">Sem dividendos</p></div>
+                      <div className="text-center opacity-30 py-10">
+                        <ReinvestIcon size={48} strokeWidth={1.5} className="mx-auto mb-4 text-slate-300" />
+                        <p className="text-[10px] font-black uppercase tracking-widest">Sem dividendos</p>
+                      </div>
                     )}
                   </div>
                </div>
             </div>
 
-            <div className="relative group bg-slate-950 p-10 rounded-[3rem] shadow-2xl border-2 border-white/5 overflow-hidden">
-               <div className="absolute top-0 right-0 w-64 h-64 bg-red-600/20 blur-[100px] pointer-events-none group-hover:bg-red-600/30 transition-all duration-700"></div>
-               <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-600/10 blur-[100px] pointer-events-none"></div>
+            <div className="relative group bg-slate-950 p-8 sm:p-12 rounded-[2.5rem] shadow-2xl border border-white/5 overflow-hidden">
+               <div className="absolute top-0 right-0 w-64 h-64 bg-red-600/10 blur-[100px] pointer-events-none group-hover:bg-red-600/20 transition-all duration-700"></div>
                
-               <div className="relative flex flex-col md:flex-row items-start md:items-center justify-between gap-10">
-                  <div className="flex items-center gap-6">
-                     <div className="bg-white/10 p-5 rounded-3xl backdrop-blur-md border border-white/10 shadow-xl group-hover:scale-110 transition-transform duration-500">
-                        <Sparkles size={32} className="text-red-500 animate-pulse" />
+               <div className="relative flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
+                  <div className="flex items-center gap-5">
+                     <div className="bg-white/5 p-4 rounded-2xl backdrop-blur-md border border-white/10 shadow-xl group-hover:scale-110 transition-transform duration-500">
+                        <Sparkles size={28} className="text-red-500 animate-pulse" />
                      </div>
                      <div>
-                        <h3 className="text-xl font-black text-white tracking-tight">{t.aiTitle}</h3>
-                        <p className="text-[10px] font-black text-white/40 uppercase tracking-widest mt-1">Alimentado por Gemini 3 Pro</p>
+                        <h3 className="text-lg font-black text-white tracking-tight">{t.aiTitle}</h3>
+                        <p className="text-[9px] font-black text-white/30 uppercase tracking-widest mt-1">Gemini Pro AI Analysis</p>
                      </div>
                   </div>
                   
                   <button 
                     onClick={handleGetInsights}
                     disabled={loadingInsights}
-                    className="w-full md:w-auto px-10 py-5 bg-white text-slate-950 rounded-[1.5rem] font-black text-xs uppercase tracking-widest flex items-center justify-center gap-3 shadow-xl hover:bg-red-600 hover:text-white transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed group-hover:shadow-red-500/20"
+                    className="w-full md:w-auto px-8 py-4 bg-white text-slate-950 rounded-2xl font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-3 shadow-xl hover:bg-red-600 hover:text-white transition-all active:scale-95 disabled:opacity-50"
                   >
-                    {loadingInsights ? <Loader2 size={18} className="animate-spin" /> : <BrainCircuit size={18} />}
+                    {loadingInsights ? <Loader2 size={16} className="animate-spin" /> : <BrainCircuit size={16} />}
                     {loadingInsights ? t.aiLoading : t.aiBtn}
                   </button>
                </div>
                
-               <div className="relative mt-10 p-8 bg-white/5 border border-white/5 rounded-[2rem] min-h-[100px] flex items-center justify-center">
+               <div className="relative mt-8 p-6 sm:p-8 bg-white/5 border border-white/5 rounded-3xl min-h-[80px]">
                   {loadingInsights ? (
-                    <div className="flex flex-col items-center gap-4 text-white/40 py-10">
-                       <Loader2 size={40} className="animate-spin text-red-500" />
-                       <p className="text-[10px] font-black uppercase tracking-[0.3em]">{t.aiLoading}</p>
+                    <div className="flex flex-col items-center gap-3 text-white/40 py-8">
+                       <Loader2 size={32} className="animate-spin text-red-500" />
+                       <p className="text-[9px] font-black uppercase tracking-widest">{t.aiLoading}</p>
                     </div>
                   ) : insights ? (
-                    <div className="w-full animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    <div className="w-full animate-in fade-in slide-in-from-bottom-2 duration-500">
                        <p className="text-white/80 text-sm leading-relaxed font-medium">
                           {insights}
                        </p>
                     </div>
                   ) : (
-                    <div className="text-center py-6">
-                       <p className="text-white/30 text-[10px] font-black uppercase tracking-widest">{t.aiEmpty}</p>
+                    <div className="text-center py-4">
+                       <p className="text-white/20 text-[9px] font-black uppercase tracking-widest">{t.aiEmpty}</p>
                     </div>
                   )}
                </div>
             </div>
           </>)}
 
-          {view === 'summary' && (<div className="bg-white rounded-[3rem] shadow-2xl border-2 border-slate-200 overflow-hidden overflow-x-auto custom-scrollbar">
-              <table className="w-full text-xs text-left min-w-[1000px]">
-                <thead className="bg-slate-950 text-white font-black uppercase text-[10px] tracking-widest">
-                  <tr><th className="px-12 py-8">Referência</th><th className="px-12 py-8 text-right">Comissões (+)</th><th className="px-12 py-8 text-right">Reinvestimento (-)</th><th className="px-12 py-8 text-right">Despesas (-)</th><th className="px-12 py-8 text-right bg-slate-900 font-black">LUCRO LÍQUIDO</th></tr>
+          {view === 'summary' && (<div className="bg-white rounded-[2rem] shadow-sm border border-slate-200 overflow-hidden overflow-x-auto custom-scrollbar">
+              <table className="w-full text-[10px] text-left min-w-[800px]">
+                <thead className="bg-slate-950 text-white font-black uppercase tracking-[0.2em]">
+                  <tr>
+                    <th className="px-10 py-6">Mês Referência</th>
+                    <th className="px-10 py-6 text-right">Comissões (+)</th>
+                    <th className="px-10 py-6 text-right">Reinvestimento (-)</th>
+                    <th className="px-10 py-6 text-right">Despesas (-)</th>
+                    <th className="px-10 py-6 text-right bg-slate-900">LUCRO LÍQUIDO</th>
+                  </tr>
                 </thead>
-                <tbody className="divide-y-2 divide-slate-100">
-                  {chartData.map(r => (<tr key={`${r.y}-${r.m}`} className="hover:bg-slate-50 transition-all group"><td className="px-12 py-8 font-black uppercase text-slate-900 text-sm">{r.name} / {r.y}</td><td className="px-12 py-8 text-right text-emerald-700 font-black">{formatMZN(r.credits)}</td><td className="px-12 py-8 text-right text-orange-600 font-black">{formatMZN(-r.debt)}</td><td className="px-12 py-8 text-right text-red-600 font-black">{formatMZN(-r.debits)}</td><td className={`px-12 py-8 text-right font-black bg-slate-50 text-base ${r.bal >= 0 ? 'text-slate-950' : 'text-red-700'}`}>{formatMZN(r.bal)}</td></tr>))}
+                <tbody className="divide-y divide-slate-100">
+                  {chartData.map(r => (
+                    <tr key={`${r.y}-${r.m}`} className="hover:bg-slate-50/80 transition-all">
+                      <td className="px-10 py-6 font-black uppercase text-slate-900 text-xs">{r.name} / {r.y}</td>
+                      <td className="px-10 py-6 text-right text-emerald-700 font-black">{formatMZN(r.credits)}</td>
+                      <td className="px-10 py-6 text-right text-orange-600 font-black">{formatMZN(-r.debt)}</td>
+                      <td className="px-10 py-6 text-right text-red-600 font-black">{formatMZN(-r.debits)}</td>
+                      <td className={`px-10 py-6 text-right font-black bg-slate-50 text-sm ${r.bal >= 0 ? 'text-slate-950' : 'text-red-700'}`}>{formatMZN(r.bal)}</td>
+                    </tr>
+                  ))}
+                  {chartData.length === 0 && (
+                    <tr><td colSpan={5} className="py-20 text-center text-slate-400 font-black uppercase tracking-widest">Sem dados no período</td></tr>
+                  )}
                 </tbody>
               </table>
           </div>)}

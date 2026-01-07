@@ -34,23 +34,23 @@ export const StatsCard: React.FC<StatsCardProps> = ({
   };
 
   return (
-    <div className={`group bg-white p-7 rounded-[2.5rem] shadow-sm border-2 ${bgStyles[color] || 'border-slate-200'} hover:shadow-2xl hover:shadow-slate-300/50 hover:-translate-y-2 transition-all duration-500 cursor-default flex flex-col justify-between h-full`}>
-      <div className="flex items-start justify-between mb-10">
+    <div className={`group bg-white p-5 sm:p-7 rounded-[2rem] sm:rounded-[2.5rem] shadow-sm border border-slate-200 ${bgStyles[color] || ''} hover:shadow-xl hover:shadow-slate-300/30 hover:-translate-y-1 transition-all duration-500 cursor-default flex flex-col justify-between h-full`}>
+      <div className="flex items-start justify-between mb-8 sm:mb-10">
         <div>
-          <p className="text-[10px] font-black uppercase tracking-[0.25em] text-slate-600 group-hover:text-slate-900 transition-colors">{title}</p>
+          <p className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-500 group-hover:text-slate-900 transition-colors">{title}</p>
         </div>
-        <div className={`p-3.5 rounded-2xl shadow-xl transition-all duration-500 group-hover:scale-110 border ${iconStyles[color] || iconStyles.blue}`}>
-          <Icon size={24} strokeWidth={3} />
+        <div className={`p-2.5 sm:p-3.5 rounded-xl sm:rounded-2xl shadow-lg transition-all duration-500 group-hover:scale-110 border ${iconStyles[color] || iconStyles.blue}`}>
+          <Icon size={18} strokeWidth={3} className="sm:w-6 sm:h-6" />
         </div>
       </div>
       
-      <div className="space-y-3">
-        <h2 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tighter group-hover:scale-[1.02] origin-left transition-transform">
+      <div className="space-y-2 sm:space-y-3">
+        <h2 className="text-xl sm:text-2xl lg:text-3xl font-black text-slate-900 tracking-tighter group-hover:scale-[1.01] origin-left transition-transform truncate">
           {value}
         </h2>
         {trend && (
-          <div className="flex items-center gap-1.5 animate-in fade-in slide-in-from-left-4 duration-700">
-             <span className="text-[10px] text-emerald-800 font-black bg-emerald-100 border-2 border-emerald-200 px-3 py-1.5 rounded-full uppercase tracking-widest shadow-sm">
+          <div className="flex items-center gap-1.5">
+             <span className="text-[8px] sm:text-[9px] text-emerald-800 font-black bg-emerald-50 border border-emerald-100 px-2 py-1 rounded-full uppercase tracking-widest">
                {trend}
              </span>
           </div>
