@@ -12,26 +12,23 @@ import {
   Layers as PackIcon, 
   Download as ExportIcon, 
   Settings as SettingsIcon, 
-  Globe as LangIcon, 
   ChevronRight as RightIcon, 
   X as CloseIcon, 
-  Info as InfoIcon, 
-  Share2 as ShareIcon,
   BarChart3,
   Sparkles,
   BrainCircuit,
   Loader2
 } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart as RePieChart, Pie, Cell, Legend } from 'recharts';
-import { StatsCard } from './components/StatsCard';
-import { SalesTable } from './components/SalesTable';
-import { CommissionsTable } from './components/CommissionsTable';
-import { ExpensesTable } from './components/ExpensesTable';
-import { SettingsModal } from './components/SettingsModal';
-import { ConfirmationModal } from './components/ConfirmationModal';
-import { DiamondSale, MonthlyCommission, ViewMode, Language, AppSettings, Expense, Month, FilterMode } from './types';
-import { INITIAL_SALES, INITIAL_COMMISSIONS, INITIAL_EXPENSES, calculateReinvestment, MONTHS, formatMZN, escapeCSV, FACTORS } from './constants';
-import { generateBusinessInsights } from './services/geminiService';
+import { StatsCard } from './components/StatsCard.tsx';
+import { SalesTable } from './components/SalesTable.tsx';
+import { CommissionsTable } from './components/CommissionsTable.tsx';
+import { ExpensesTable } from './components/ExpensesTable.tsx';
+import { SettingsModal } from './components/SettingsModal.tsx';
+import { ConfirmationModal } from './components/ConfirmationModal.tsx';
+import { DiamondSale, MonthlyCommission, ViewMode, Language, AppSettings, Expense, Month, FilterMode } from './types.ts';
+import { INITIAL_SALES, INITIAL_COMMISSIONS, INITIAL_EXPENSES, calculateReinvestment, MONTHS, formatMZN, escapeCSV, FACTORS } from './constants.ts';
+import { generateBusinessInsights } from './services/geminiService.ts';
 
 const generateId = () => typeof crypto?.randomUUID === 'function' ? crypto.randomUUID() : Math.random().toString(36).substr(2, 9);
 const safeParse = <T,>(k: string, fb: T): T => { try { const s = localStorage.getItem(k); return s ? JSON.parse(s) : fb; } catch { return fb; } };
@@ -61,7 +58,7 @@ const T = {
 };
 
 const App: React.FC = () => {
-  const [view, setView] = useState<ViewMode>(() => (window.history.state?.view || 'dashboard'));
+  const [view, setView] = useState<ViewMode>('dashboard');
   const [lang, setLang] = useState<Language>('pt');
   const [showSettings, setShowSettings] = useState(false);
   
@@ -101,7 +98,6 @@ const App: React.FC = () => {
   const changeView = useCallback((newView: ViewMode) => {
     if (view === newView) return;
     if ('vibrate' in navigator) navigator.vibrate(5);
-    window.history.pushState({ view: newView }, '', '');
     setView(newView);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [view]);
@@ -175,7 +171,7 @@ const App: React.FC = () => {
       const res = await generateBusinessInsights({ sales, commissions, expenses, settings });
       setInsights(res);
     } catch (err) {
-      setInsights("Ocorreu um erro ao gerar os insights. Verifica a ligação.");
+      setInsights("Ocorreu um erro ao gerar os insights. Verifica a ligação e a chave API.");
     } finally {
       setLoadingInsights(false);
     }
@@ -281,7 +277,6 @@ const App: React.FC = () => {
 
         <div className="p-8 sm:p-12 max-w-7xl mx-auto space-y-12 animate-in fade-in duration-700 pb-20">
           {view === 'dashboard' && (<>
-            {/* Quick Stats Section */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8">
                 <StatsCard title={t.tQty} value={periodStats.totalQty.toString()} icon={PackIcon} color="purple" />
                 <StatsCard title={t.net} value={formatMZN(periodStats.totalComm)} icon={WalletIcon} color="blue" />
@@ -290,7 +285,6 @@ const App: React.FC = () => {
                 <StatsCard title={t.tEarn} value={formatMZN(periodStats.netProfit)} icon={MoneyIcon} color="green" />
             </div>
 
-            {/* Charts Section */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
                <div className="lg:col-span-2 bg-white p-10 rounded-[3rem] shadow-sm border-2 border-slate-200">
                   <h3 className="text-[11px] font-black uppercase tracking-[0.3em] text-slate-400 mb-10 flex items-center gap-3"><BarChart3 size={20} className="text-blue-600"/> {t.perfChart}</h3>
@@ -320,7 +314,6 @@ const App: React.FC = () => {
                </div>
             </div>
 
-            {/* AI Insight Section (Moved to Bottom) */}
             <div className="relative group bg-slate-950 p-10 rounded-[3rem] shadow-2xl border-2 border-white/5 overflow-hidden">
                <div className="absolute top-0 right-0 w-64 h-64 bg-red-600/20 blur-[100px] pointer-events-none group-hover:bg-red-600/30 transition-all duration-700"></div>
                <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-600/10 blur-[100px] pointer-events-none"></div>

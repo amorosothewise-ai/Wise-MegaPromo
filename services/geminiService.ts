@@ -1,24 +1,24 @@
 
 import { GoogleGenAI } from "@google/genai";
-import { AppState } from "../types";
-import { calculateSaleMetrics } from "../constants";
+import { AppState } from "../types.ts";
+import { calculateSaleMetrics } from "../constants.ts";
 
 export const generateBusinessInsights = async (state: AppState): Promise<string> => {
-  // Use the pre-configured API_KEY from the environment
-  const apiKey = process.env.API_KEY;
-  if (!apiKey) return "API Key is missing or not configured correctly in the environment.";
+  // A variável process.env.API_KEY é injetada automaticamente pelo Netlify no ambiente de execução.
+  const apiKey = (window as any).process?.env?.API_KEY || process.env.API_KEY;
   
-  // Create a new GoogleGenAI instance right before making an API call
+  if (!apiKey) {
+    return "Erro: A chave API (API_KEY) não foi detetada. Certifica-te de que configuraste a variável de ambiente no Netlify.";
+  }
+  
   const ai = new GoogleGenAI({ apiKey });
 
-  // Prepare parameters for metric calculation based on current settings
   const calcParams = {
     salePrice: state.settings.defaultSalePrice,
     grossCommission: state.settings.defaultGrossCommission,
     repaymentRate: state.settings.defaultRepaymentRate
   };
 
-  // Extract relevant financial data for analysis
   const salesSummary = state.sales.slice(-30).map(s => 
     `Data:${s.date},Qtd:${s.quantity},LucroLíq:${calculateSaleMetrics(s, calcParams).lucroLiquido}`
   ).join('\n');
@@ -31,38 +31,29 @@ export const generateBusinessInsights = async (state: AppState): Promise<string>
     `Categoria:${e.category},Valor:${e.value}`
   ).join('\n');
 
-  const prompt = `Age como um analista financeiro sénior especializado no mercado moçambicano. 
+  const prompt = `Age como um analista financeiro sénior moçambicano. 
   
-  CONTEXTO DE DADOS:
-  - Vendas Recentes:
-  ${salesSummary}
-  
-  - Comissões Recebidas:
-  ${commissionsSummary}
-  
-  - Despesas Fixas:
-  ${expensesSummary}
+  DADOS:
+  - Vendas: ${salesSummary}
+  - Comissões: ${commissionsSummary}
+  - Despesas: ${expensesSummary}
   
   OBJETIVO:
-  Fornece uma análise executiva concisa (máx. 200 palavras) em Português de Moçambique.
-  1. Identifica o dia mais produtivo e explica a razão do seu destaque.
-  2. Determina se a tendência de volume de vendas está a Crescer, Estável ou a Declinar.
-  3. Compara a eficiência do M-Pesa vs e-Mola com base nos ganhos recentes.
-  4. Dá UMA recomendação estratégica de alto impacto para maximizar o Lucro Real ou cortar custos desnecessários.
-  
-  Tom: Profissional, direto ao ponto e baseado em dados.`;
+  Análise concisa (máx 150 palavras) em PT-MZ:
+  1. Destaque do período mais produtivo.
+  2. Tendência de volume (Crescer/Estável/Declinar).
+  3. Eficiência M-Pesa vs e-Mola.
+  4. Uma recomendação estratégica de lucro.`;
 
   try {
-    // Using gemini-3-pro-preview for complex financial reasoning tasks.
     const response = await ai.models.generateContent({ 
       model: 'gemini-3-pro-preview', 
       contents: prompt 
     });
 
-    // Directly access .text property from GenerateContentResponse
-    return response.text || "Não foi possível gerar insights no momento. Tente novamente.";
+    return response.text || "Sem resposta da IA.";
   } catch (error) {
     console.error("Gemini Error:", error);
-    return "Falha ao analisar dados. Por favor, tente novamente mais tarde.";
+    return "Erro na análise. Verifica se a tua chave API no Netlify é válida para o modelo gemini-3-pro-preview.";
   }
 };
