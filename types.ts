@@ -48,6 +48,8 @@ export interface AppSettings {
   defaultRepaymentRate: number;
   defaultSalePrice: number;
   defaultGrossCommission: number;
+  partnerAPercentage: number;
+  partnerBPercentage: number;
 }
 
 export interface AppState {
